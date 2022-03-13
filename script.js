@@ -18,7 +18,7 @@ const getEventData = (slot, hourStr) => {
   };
 }
 
-function parseCalendarHTML(table) {
+const parseCalendarHTML = (table) => {
   const classes = [];
   table.forEach((row) => {
     const hourStr = getRowHourStr(row);
@@ -28,7 +28,7 @@ function parseCalendarHTML(table) {
       daySlotsForCurrentHour.forEach((slot) => {
         if (containsClass(slot)) {
           const eventData = getEventData(slot, hourStr);
-          classes.push(createEvent(eventData));
+          classes.push(createClassEvent(eventData));
         }
       });
     }
@@ -95,7 +95,9 @@ const firstDayMap = {
   FRIDAY: "20220325",
 };
 
-const createEvent = (eventData) => {
+const numOfWeeksInSemester = 14;
+
+const createClassEvent = (eventData) => {
   let event = "BEGIN:VEVENT\n";
   event += `DTSTART;TZID=Asia/Jerusalem:${firstDayMap[eventData.day]}T${
     hourCodeMap[eventData.hourCode]
@@ -105,10 +107,7 @@ const createEvent = (eventData) => {
     hourCodeMap[eventData.hourCode + 1]
   }\n`;
 
-  event += `RRULE:FREQ=WEEKLY;BYDAY=${eventData.day.substring(
-    0,
-    2
-  )};INTERVAL=1\n`;
+  event += `RRULE:FREQ=WEEKLY;BYDAY=${eventData.day.substring(0, 2)};INTERVAL=1;COUNT=${numOfWeeksInSemester}\n`;
   event += `SUMMARY:${eventData.description.split("\n")[0]}\n`;
   event += "END:VEVENT\n";
   return event;
