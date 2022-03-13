@@ -1,25 +1,23 @@
-import {createCalendarFile} from "./helpers/ics-helper";
-import {download} from "./helpers/download-helper";
-import {parseCalendarHTML} from "./helpers/calendar-html-parser";
-
+import { createCalendarFile } from "./helpers/ics-helper";
+import { download } from "./helpers/download-helper";
+import { parseCalendarHTML } from "./helpers/calendar-html-parser";
 
 const getCalendarFileStr = (table) => {
   const classEvents = parseCalendarHTML(table);
   return createCalendarFile(classEvents);
-}
+};
 
-const clickOnDownload = (e) => {
+const clickOnDownloadHandler = (e) => {
   e.preventDefault();
 
   const table = getCalendarTable();
   const calendarFileStr = getCalendarFileStr(table);
-  download('bgu_calendar.ics', calendarFileStr)
+  download("bgu_calendar.ics", calendarFileStr);
 };
 
 const getCalendarTable = () => {
   return [...document.querySelector(".standardLook").children[0].children];
 };
-
 
 /*
   main script
@@ -29,10 +27,10 @@ const isHourTablePage = title && title.textContent.includes("מערכת שעות
 
 const createDownloadButton = () => {
   const btn = document.createElement("button");
-  btn.addEventListener("click", clickOnDownload);
+  btn.addEventListener("click", clickOnDownloadHandler);
   btn.innerHTML = "הורד מערכת שעות";
   return btn;
-}
+};
 
 if (isHourTablePage) {
   const actionBar = document.getElementsByClassName(
@@ -43,4 +41,3 @@ if (isHourTablePage) {
     actionBar.appendChild(btn);
   }
 }
-
