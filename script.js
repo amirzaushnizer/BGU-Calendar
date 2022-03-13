@@ -1,3 +1,39 @@
+/*
+ consts
+*/
+
+const numOfWeeksInSemester = 14;
+
+const hourCodeMap = {
+  0: "080000",
+  1: "090000",
+  2: "100000",
+  3: "110000",
+  4: "120000",
+  5: "130000",
+  6: "140000",
+  7: "150000",
+  8: "160000",
+  9: "170000",
+  10: "180000",
+  11: "190000",
+  12: "200000",
+};
+
+const firstDayMap = {
+  SUNDAY: "20220320",
+  MONDAY: "20220321",
+  TUESDAY: "20220322",
+  WEDNESDAY: "20220323",
+  THURSDAY: "20220324",
+  FRIDAY: "20220325",
+};
+
+
+/*
+  helper functions
+ */
+
 const getRowHourStr = (row) => {
   return row.children[0].getAttribute("id");
 }
@@ -49,62 +85,18 @@ const clickOnDownload = (e) => {
   download('bgu_calendar.ics', calendarFileStr)
 };
 
-/*
-  main script
- */
-const title = document.querySelector(".uRegionHeading");
-const isHourTablePage = title && title.textContent.includes("מערכת שעות");
-if (isHourTablePage) {
-  const actionBar = document.getElementsByClassName(
-    "uRegionContent clearfix"
-  )[0];
-  if (actionBar) {
-    const btn = document.createElement("button");
-    btn.addEventListener("click", clickOnDownload);
-    btn.innerHTML = "הורד מערכת שעות";
-    actionBar.appendChild(btn);
-  }
-}
-
 const getTable = () => {
   return [...document.querySelector(".standardLook").children[0].children];
 };
 
-const hourCodeMap = {
-  0: "080000",
-  1: "090000",
-  2: "100000",
-  3: "110000",
-  4: "120000",
-  5: "130000",
-  6: "140000",
-  7: "150000",
-  8: "160000",
-  9: "170000",
-  10: "180000",
-  11: "190000",
-  12: "200000",
-};
-
-const firstDayMap = {
-  SUNDAY: "20220320",
-  MONDAY: "20220321",
-  TUESDAY: "20220322",
-  WEDNESDAY: "20220323",
-  THURSDAY: "20220324",
-  FRIDAY: "20220325",
-};
-
-const numOfWeeksInSemester = 14;
-
 const createClassEvent = (eventData) => {
   let event = "BEGIN:VEVENT\n";
   event += `DTSTART;TZID=Asia/Jerusalem:${firstDayMap[eventData.day]}T${
-    hourCodeMap[eventData.hourCode]
+      hourCodeMap[eventData.hourCode]
   }\n`;
 
   event += `DTEND;TZID=Asia/Jerusalem:${firstDayMap[eventData.day]}T${
-    hourCodeMap[eventData.hourCode + 1]
+      hourCodeMap[eventData.hourCode + 1]
   }\n`;
 
   event += `RRULE:FREQ=WEEKLY;BYDAY=${eventData.day.substring(0, 2)};INTERVAL=1;COUNT=${numOfWeeksInSemester}\n`;
@@ -138,4 +130,27 @@ const download = (filename, text) => {
   element.click();
 
   document.body.removeChild(element);
+}
+
+/*
+  main script
+ */
+const title = document.querySelector(".uRegionHeading");
+const isHourTablePage = title && title.textContent.includes("מערכת שעות");
+
+function createDownloadButton() {
+  const btn = document.createElement("button");
+  btn.addEventListener("click", clickOnDownload);
+  btn.innerHTML = "הורד מערכת שעות";
+  return btn;
+}
+
+if (isHourTablePage) {
+  const actionBar = document.getElementsByClassName(
+    "uRegionContent clearfix"
+  )[0];
+  if (actionBar) {
+    const btn = createDownloadButton();
+    actionBar.appendChild(btn);
+  }
 }
