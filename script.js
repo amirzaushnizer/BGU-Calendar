@@ -132,18 +132,18 @@ const download = (filename, text) => {
   document.body.removeChild(element);
 }
 
-/*
-  main script
- */
-const title = document.querySelector(".uRegionHeading");
-const isHourTablePage = title && title.textContent.includes("מערכת שעות");
-
-function createDownloadButton() {
+const createDownloadButton = () => {
   const btn = document.createElement("button");
   btn.addEventListener("click", clickOnDownload);
   btn.innerHTML = "הורד מערכת שעות";
   return btn;
 }
+
+/*
+  main script
+ */
+const title = document.querySelector(".uRegionHeading");
+const isHourTablePage = title && title.textContent.includes("מערכת שעות");
 
 if (isHourTablePage) {
   const actionBar = document.getElementsByClassName(
