@@ -1,36 +1,66 @@
-const onClick = (e) => {
-  e.preventDefault();
+const getRowHourStr = (row) => {
+  return row.children[0].getAttribute("id");
+}
+
+const getDaySlotsForCurrentHour = (row) => {
+  return [...row.children].splice(1);
+}
+
+const containsClass = (slot) => {
+  return slot.textContent.includes("קורס");
+}
+
+const getEventData = (slot, hourStr) => {
+  return {
+    day: slot.getAttribute("headers").split(" ")[0],
+    hourCode: parseInt(hourStr.substring(7)),
+    description: slot.textContent,
+  };
+}
+
+function parseCalendarHTML(table) {
   const classes = [];
-  const table = getTable();
-  console.log(table);
   table.forEach((row) => {
-    const hourStr = row.children[0].getAttribute("id");
-    if (hourStr && hourStr !== "HOURSTR-1") {
-      const days = [...row.children].splice(1);
-      days.forEach((day) => {
-        if (day.textContent.includes("קורס")) {
-          const eventData = {
-            day: day.getAttribute("headers").split(" ")[0],
-            hourCode: parseInt(hourStr.substring(7)),
-            description: day.textContent,
-          };
+    const hourStr = getRowHourStr(row);
+    let isActualHourRow = hourStr && hourStr !== "HOURSTR-1";
+    if (isActualHourRow) {
+      const daySlotsForCurrentHour = getDaySlotsForCurrentHour(row);
+      daySlotsForCurrentHour.forEach((slot) => {
+        if (containsClass(slot)) {
+          const eventData = getEventData(slot, hourStr);
           classes.push(createEvent(eventData));
         }
       });
     }
   });
-  const calendar = getCalendarFile(classes);
-  console.log(calendar);
+  return classes;
+}
+
+const getCalendarFileStr = (table) => {
+  const classEvents = parseCalendarHTML(table);
+  return createCalendarFile(classEvents);
+}
+
+const clickOnDownload = (e) => {
+  e.preventDefault();
+
+  const table = getTable();
+  const calendarFileStr = getCalendarFileStr(table);
+  download('bgu_calendar.ics', calendarFileStr)
 };
 
+/*
+  main script
+ */
 const title = document.querySelector(".uRegionHeading");
-if (title && title.textContent.includes("מערכת שעות")) {
+const isHourTablePage = title && title.textContent.includes("מערכת שעות");
+if (isHourTablePage) {
   const actionBar = document.getElementsByClassName(
     "uRegionContent clearfix"
   )[0];
   if (actionBar) {
     const btn = document.createElement("button");
-    btn.addEventListener("click", onClick);
+    btn.addEventListener("click", clickOnDownload);
     btn.innerHTML = "הורד מערכת שעות";
     actionBar.appendChild(btn);
   }
@@ -39,8 +69,6 @@ if (title && title.textContent.includes("מערכת שעות")) {
 const getTable = () => {
   return [...document.querySelector(".standardLook").children[0].children];
 };
-
-const semesterStart = "DTSTART;TZID=Asia/Jerusalem:20220320T080000\n";
 
 const hourCodeMap = {
   0: "080000",
@@ -86,7 +114,7 @@ const createEvent = (eventData) => {
   return event;
 };
 
-const getCalendarFile = (classes) => {
+const createCalendarFile = (classes) => {
   let calendar = "BEGIN:VCALENDAR\n";
   calendar += "VERSION:2.0\n";
   calendar += "BEGIN:VTIMEZONE\n";
@@ -99,3 +127,16 @@ const getCalendarFile = (classes) => {
   calendar += "END:VCALENDAR\n";
   return calendar;
 };
+
+const download = (filename, text) => {
+  const element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
