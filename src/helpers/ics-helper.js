@@ -15,6 +15,7 @@ export const createClassEvent = (eventData) => {
     2
   )};INTERVAL=1;COUNT=${eventData.numOfWeeksInSemester}\n`;
   event += `SUMMARY:${eventData.description.split("\n")[0]}\n`;
+  event += `DESCRIPTION:${eventData.description.split('\n')[1]}\n`
   event += "END:VEVENT\n";
   return event;
 };
